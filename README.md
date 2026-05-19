@@ -11,16 +11,16 @@ Repo template para arrancar cualquier proyecto con metodología SDD adaptada a n
 ### 1. Clonar como template
 
 ```bash
-gh repo create mi-proyecto-nuevo --template iamgabstark/SDD
+gh repo create mi-proyecto-nuevo --template GabrielaStark/SDD
 # o
-git clone https://github.com/iamgabstark/SDD.git mi-proyecto-nuevo
+git clone https://github.com/GabrielaStark/SDD.git mi-proyecto-nuevo
 cd mi-proyecto-nuevo && rm -rf .git && git init
 ```
 
 ### 2. Cargar inputs
 
-- **Greenfield**: meté material de levantamiento en `docs/inputs/` (transcripciones, imágenes, formularios).
-- **Brownfield**: meté análisis arqueológico previo en `docs/analysis/` + código legacy accesible.
+- **Greenfield**: mete material de levantamiento en `docs/inputs/` (transcripciones, imágenes, formularios).
+- **Brownfield**: mete análisis arqueológico previo en `docs/analysis/` + código legacy accesible.
 
 ### 3. Abrir Claude Code y ejecutar el pipeline
 
@@ -28,7 +28,7 @@ cd mi-proyecto-nuevo && rm -rf .git && git init
 # Verificar que los subagentes estén disponibles
 /agents
 
-# Fase 1 — Requirements (elegí uno según el caso)
+# Fase 1 — Requirements (elige uno según el caso)
 Use the analista-entrevistas subagent to produce docs/requirements.md
 Use the arqueologo-codigo subagent to produce docs/requirements.md
 
@@ -57,7 +57,7 @@ Toda la guía paso a paso, anti-patrones, FAQ y referencia de componentes está 
 
 ## ¿Qué es SDD?
 
-**Spec-Driven Development** es una práctica donde escribís especificaciones formales primero y el agente IA genera código a partir de ellas. Las specs son el artefacto primario versionado; el código es consecuencia.
+**Spec-Driven Development** es una práctica donde escribes especificaciones formales primero y el agente IA genera código a partir de ellas. Las specs son el artefacto primario versionado; el código es consecuencia.
 
 Resuelve el problema del vibe-coding: prototipos rápidos pero código frágil. SDD recupera disciplina de ingeniería sin perder velocidad.
 
@@ -114,7 +114,7 @@ inputs/ o analysis/
 
 ## Reglas no negociables
 
-1. **Una tarea = una sesión del agente codificador.** Nunca "ejecutá todo tasks.md".
+1. **Una tarea = una sesión del agente codificador.** Nunca "ejecuta todo tasks.md".
 2. **Cada fase requiere aprobación humana explícita** antes de pasar a la siguiente.
 3. **Los SKILLs son absolutos.** Si una regla no encaja en un caso, el caso probablemente no es para SDD — no inventes excepciones.
 4. **Trazabilidad bidireccional.** Cada línea de código se justifica en una tarea → decisión de design → criterio EARS → historia de usuario.

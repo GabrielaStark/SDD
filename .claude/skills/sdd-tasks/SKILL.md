@@ -303,7 +303,7 @@ Una tarea = una sesión = una revisión humana = un `[x]`. Sin atajos.
 Si después de la auto-validación queda CUALQUIER ítem sin marcar:
 
 1. **NO entregues el tasks.md**.
-2. Reportá al humano qué ítems fallaron.
-3. Iterá hasta que el checklist esté satisfecho.
+2. Reporta al humano qué ítems fallaron.
+3. Itera hasta que el checklist esté satisfecho.
 
 Tasks.md mal hecho es la causa #1 de fallas en ejecución SDD. Una hora afinándolo ahorra cinco horas de errores durante el desarrollo.

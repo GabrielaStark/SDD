@@ -120,7 +120,7 @@ con el componente que lo implementa y el test que lo valida.]
 - Mermaid (gráficos y secuencias): ✅ permitido
 - **Funciones completas en Python/JS/TS/etc.**: ❌ PROHIBIDO
 
-Si te encontrás escribiendo implementación, ya estás en `tasks.md` o en código directo. El design define el **qué técnico**, no el **cómo línea por línea**.
+Si te encuentras escribiendo implementación, ya estás en `tasks.md` o en código directo. El design define el **qué técnico**, no el **cómo línea por línea**.
 
 ### Regla 2: Revisable en una sentada
 
@@ -128,7 +128,7 @@ Si te encontrás escribiendo implementación, ya estás en `tasks.md` o en códi
 - Hard limit: 800 líneas
 - Si pasa de eso, el feature es demasiado grande. **Hay que partirlo** en sub-features con sus propios designs.
 
-Un humano (cliente técnico, revisor, vos misma) debe poder leer, entender y aprobar el design completo en 30-45 minutos. Si no, el quality gate se rompe porque nadie lo revisa de verdad.
+Un humano (cliente técnico, revisor, tú misma) debe poder leer, entender y aprobar el design completo en 30-45 minutos. Si no, el quality gate se rompe porque nadie lo revisa de verdad.
 
 ## 4. Reglas de calidad por sección
 
@@ -287,8 +287,8 @@ Antes de declarar `design.md` terminado, ejecutar mentalmente cada chequeo. Si C
 Si después de la auto-validación queda CUALQUIER ítem sin marcar:
 
 1. **NO entregues el design.md**.
-2. Reportá al humano qué ítems fallaron y qué información hace falta.
-3. Iterá hasta que el checklist completo esté satisfecho.
+2. Reporta al humano qué ítems fallaron y qué información hace falta.
+3. Itera hasta que el checklist completo esté satisfecho.
 
 Mejor entregar un design.md más corto con secciones marcadas como `TBD: pendiente de decisión sobre X` que un design.md que parece completo pero tiene huecos disfrazados.
 ```

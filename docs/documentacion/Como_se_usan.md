@@ -66,14 +66,14 @@ No es rápido. Es **predecible**. Esa es la diferencia con vibe-coding.
 Si está como repo template en GitHub:
 
 ```bash
-gh repo create mi-proyecto-nuevo --template iamgabstark/SDD
+gh repo create mi-proyecto-nuevo --template GabrielaStark/SDD
 cd mi-proyecto-nuevo
 ```
 
 O manualmente:
 
 ```bash
-git clone https://github.com/iamgabstark/SDD.git mi-proyecto-nuevo
+git clone https://github.com/GabrielaStark/SDD.git mi-proyecto-nuevo
 cd mi-proyecto-nuevo
 rm -rf .git
 git init
