@@ -34,17 +34,22 @@ Use the arqueologo-codigo subagent to produce docs/requirements.md
 
 # [revisión humana → aprobación]
 
-# Fase 2 — Design
+# Fase 2 (opcional) — Prototipo visual (solo si el proyecto tiene UI relevante)
+Use the prototipador-visual subagent to produce docs/prototype/
+
+# [loop iterativo con cliente → aprobación del cliente]
+
+# Fase 3 — Design
 Use the disenador-arquitecto subagent to produce docs/design.md
 
 # [revisión humana → aprobación]
 
-# Fase 3 — Tasks
+# Fase 4 — Tasks
 Use the descompositor-tareas subagent to produce docs/tasks.md
 
 # [revisión humana → aprobación]
 
-# Fase 4 — Ejecución: una tarea por sesión
+# Fase 5 — Ejecución: una tarea por sesión
 ```
 
 ### 4. Leer la documentación completa
@@ -70,22 +75,27 @@ Está en fase "Assess" del Tech Radar de Thoughtworks (2025-2026). Práctica eme
 ```
 SDD/
 ├── .claude/
-│   ├── agents/                            ← 4 subagentes especializados
+│   ├── agents/                            ← 5 subagentes especializados
 │   │   ├── analista-entrevistas.md       ← greenfield: material → requirements
 │   │   ├── arqueologo-codigo.md           ← brownfield: legacy → requirements
+│   │   ├── prototipador-visual.md         ← (opcional) requirements → mockup desplegado
 │   │   ├── disenador-arquitecto.md        ← requirements → design
 │   │   └── descompositor-tareas.md        ← design → tasks
 │   └── skills/                            ← constituciones compartidas
 │       ├── sdd-requirements/SKILL.md
+│       ├── sdd-prototype/SKILL.md
 │       ├── sdd-design/SKILL.md
 │       └── sdd-tasks/SKILL.md
 ├── docs/
 │   ├── inputs/                            ← material crudo (greenfield)
 │   ├── analysis/                          ← análisis previo (brownfield)
 │   ├── requirements.md                    ← OUTPUT fase 1
-│   ├── design.md                          ← OUTPUT fase 2
-│   ├── tasks.md                           ← OUTPUT fase 3
-│   └── documentacion/SDD.md               ← guía completa
+│   ├── prototype/                         ← OUTPUT fase 2 (opcional, desplegable)
+│   ├── design.md                          ← OUTPUT fase 3
+│   ├── tasks.md                           ← OUTPUT fase 4
+│   └── documentacion/
+│       ├── SDD.md                         ← guía completa
+│       └── PROTOTIPO.md                   ← decisiones de la fase opcional de prototipo
 └── templates/                             ← templates con guía inline
     ├── requirements.md
     ├── design.md
@@ -99,16 +109,20 @@ SDD/
 ```
 inputs/ o analysis/
         ↓
-[analista o arqueologo] → docs/requirements.md → [gate humano]
+[analista o arqueologo]  → docs/requirements.md  → [gate humano]
         ↓
-[disenador-arquitecto]  → docs/design.md       → [gate humano]
+[prototipador-visual]    → docs/prototype/       → [gate cliente]
+   (opcional — solo si       (loop iterativo
+    hay UI relevante)         con validación)
         ↓
-[descompositor-tareas]  → docs/tasks.md        → [gate humano]
+[disenador-arquitecto]   → docs/design.md        → [gate humano]
+        ↓
+[descompositor-tareas]   → docs/tasks.md         → [gate humano]
         ↓
    tarea por sesión + revisión humana → código + tests
 ```
 
-**Los gates humanos no son opcionales.** Saltarse uno propaga errores 10x a la siguiente fase.
+**Los gates humanos no son opcionales.** Saltarse uno propaga errores 10x a la siguiente fase. La fase de prototipo es opcional pero, si se ejecuta, su gate de aprobación del cliente es obligatorio antes de pasar a design.
 
 ---
 
