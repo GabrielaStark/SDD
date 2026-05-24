@@ -54,19 +54,24 @@ SDD/
 │   ├── agents/                            ← subagentes especializados
 │   │   ├── analista-entrevistas.md       ← greenfield: transcripción → requirements
 │   │   ├── arqueologo-codigo.md           ← brownfield: legacy → requirements
+│   │   ├── prototipador-visual.md         ← (opcional) requirements → mockup desplegado
 │   │   ├── disenador-arquitecto.md        ← requirements → design
 │   │   └── descompositor-tareas.md        ← design → tasks
 │   └── skills/                            ← constituciones compartidas
 │       ├── sdd-requirements/SKILL.md      ← reglas del requirements.md
+│       ├── sdd-prototype/SKILL.md         ← reglas del docs/prototype/ (fase opcional)
 │       ├── sdd-design/SKILL.md            ← reglas del design.md
 │       └── sdd-tasks/SKILL.md             ← reglas del tasks.md
 ├── docs/
 │   ├── inputs/                            ← material crudo del levantamiento
 │   ├── analysis/                          ← análisis arqueológico previo (brownfield)
 │   ├── requirements.md                    ← OUTPUT fase 1
-│   ├── design.md                          ← OUTPUT fase 2
-│   ├── tasks.md                           ← OUTPUT fase 3
-│   └── documentacion/SDD.md               ← este archivo
+│   ├── prototype/                         ← OUTPUT fase 2 opcional (mockup desplegable)
+│   ├── design.md                          ← OUTPUT fase 3
+│   ├── tasks.md                           ← OUTPUT fase 4
+│   └── documentacion/
+│       ├── SDD.md                         ← este archivo
+│       └── PROTOTIPO.md                   ← decisiones de la fase opcional de prototipo
 └── templates/                             ← templates para empezar de cero
     ├── requirements.md
     ├── design.md
@@ -101,10 +106,28 @@ SDD/
         └───────────────────┬───────────────────┘
                             ▼
                   ┌──────────────────────┐
-                  │ docs/requirements.md │
+                  │ docs/requirements.md │ ◄──── ┐
+                  └──────────────────────┘       │
+                            │                    │
+                  [gate humano: aprobación]      │
+                            │                    │
+                            ▼                    │
+                  ┌──────────────────────┐       │ válvula
+                  │ prototipador-visual  │       │ de retorno
+                  │ (OPCIONAL — solo si  │       │ (cambios
+                  │  hay UI relevante)   │       │ estructurales)
+                  └──────────────────────┘       │
+                            │                    │
+                  loop iterativo: ───────────────┘
+                  prototipo ⇄ validation-log
+                            │
+                            ▼
+                  ┌──────────────────────┐
+                  │ docs/prototype/      │
+                  │ desplegado en URL    │
                   └──────────────────────┘
                             │
-                  [gate humano: aprobación]
+                  [gate cliente: aprobación]
                             │
                             ▼
                   ┌──────────────────────┐
@@ -221,9 +244,42 @@ El agente va a:
 
 Tú validas manualmente. Si está bien, apruebas explícitamente. Si no, pides cambios.
 
-### Paso 6: Diseño
+### Paso 6 (opcional): Prototipo visual para validación temprana con cliente
 
-Con `requirements.md` aprobado:
+Si el proyecto tiene **UI relevante** (no es backend puro, CLI ni librería), considera invocar la fase opcional de prototipo antes de pasar a diseño. Esto te permite mostrarle al cliente un mockup interactivo desplegado en una URL real, recoger feedback temprano, y detectar requisitos faltantes ANTES de cementarlos en `design.md`.
+
+Estructura mínima previa (opcional):
+
+```
+docs/prototype/context/
+├── branding.md        ← colores, tipografía, tono (puede estar vacío)
+├── logos/             ← assets de marca del cliente (opcional)
+└── referencias/       ← screenshots inspiracionales (opcional)
+```
+
+Invocación:
+
+```
+Use the prototipador-visual subagent to produce docs/prototype/
+```
+
+El agente:
+
+1. Verifica que `requirements.md` está aprobado y que el proyecto tiene UI relevante.
+2. Pregunta plataforma de despliegue (default Railway; configurable a Netlify, Vercel, Cloudflare Pages, GitHub Pages o manual).
+3. Genera un mini-sitio estático (HTML + Tailwind CDN) con banner permanente "MOCKUP NO FUNCIONAL" y datos obviamente falsos.
+4. Genera `DEPLOY.md` con instrucciones de despliegue.
+5. Genera `validation-log-v1.md` vacío para que transcribas el feedback del cliente.
+
+**Loop iterativo**: tú haces el deploy, muestras al cliente, transcribes feedback en `validation-log-vN.md`, vuelves a invocar al agente para v{N+1}. Cuando el cliente aprueba (Status: APROBADO en el último log), pasas a Paso 7.
+
+**Válvula de retorno**: si el feedback del cliente revela un cambio estructural (entidad nueva, actor nuevo, flujo nuevo, integración externa, NFR duro nuevo), el agente se detiene y te recomienda volver a `analista-entrevistas` para actualizar `requirements.md` ANTES de seguir iterando el prototipo.
+
+Detalles completos: ver [`PROTOTIPO.md`](PROTOTIPO.md) y el skill `sdd-prototype`.
+
+### Paso 7: Diseño
+
+Con `requirements.md` aprobado (y `docs/prototype/` aprobado por cliente si la fase opcional se ejecutó):
 
 ```
 Use the disenador-arquitecto subagent to produce docs/design.md
@@ -231,7 +287,9 @@ Use the disenador-arquitecto subagent to produce docs/design.md
 
 Repite el ciclo de iteración → auto-validación → aprobación humana.
 
-### Paso 7: Tareas
+Nota: si existe `docs/prototype/`, el diseñador lo lee como referencia informativa del flujo de UX validado, pero el stack del prototipo (HTML+Tailwind) NO se hereda. El stack real se decide aquí.
+
+### Paso 8: Tareas
 
 Con `design.md` aprobado:
 
@@ -241,7 +299,7 @@ Use the descompositor-tareas subagent to produce docs/tasks.md
 
 Mismo ciclo.
 
-### Paso 8: Ejecución de tareas
+### Paso 9: Ejecución de tareas
 
 Con `tasks.md` aprobado, ejecutas **una tarea por sesión**:
 
@@ -294,6 +352,32 @@ Con `tasks.md` aprobado, ejecutas **una tarea por sesión**:
 - No idealiza el comportamiento ("lo que debería hacer")
 - No clasifica unilateralmente comportamiento ambiguo
 
+### `prototipador-visual` (opcional, solo proyectos con UI)
+
+**Propósito**: tomar `requirements.md` aprobado + contexto de branding opcional, y producir un `docs/prototype/` — mockup interactivo de alta fidelidad desplegable en una URL real para validación temprana con cliente.
+
+**Cuándo usarlo**: después de que `requirements.md` está aprobado, **solo si el proyecto tiene UI relevante**. Backend puro, CLIs y librerías la saltan.
+
+**Qué hace bien**:
+
+- Genera HTML estático throwaway (Tailwind CDN, JS vanilla/Alpine) — no contamina el stack real
+- Banner permanente "MOCKUP NO FUNCIONAL" en todas las pantallas + datos obviamente falsos
+- `server.js` con basic auth via env vars (default Railway, configurable a 5 plataformas)
+- Loop iterativo con `validation-log-vN.md` versionado por iteración
+- Válvula de retorno al analista cuando el feedback revela cambios estructurales
+- Placeholders genéricos si falta branding (no se bloquea en iteración 1)
+
+**Qué NO hace**:
+
+- No genera código de producción (cero React/Vue/Svelte/Next/etc.)
+- No decide el stack del proyecto (eso vive en `design.md`)
+- No ejecuta `git push` ni `railway up` sin instrucción explícita
+- No absorbe cambios estructurales en HTML (devuelve al analista)
+- No itera sin un `validation-log-vN.md` previo escrito por el dev
+- No se bloquea esperando branding en iteración 1
+
+Para detalles completos de decisiones y reglas: ver [`PROTOTIPO.md`](PROTOTIPO.md) y el skill `sdd-prototype`.
+
 ### `disenador-arquitecto`
 
 **Propósito**: tomar `requirements.md` aprobado y producir `design.md` con las 9 secciones obligatorias.
@@ -330,9 +414,11 @@ Con `tasks.md` aprobado, ejecutas **una tarea por sesión**:
 - No deja criterios EARS huérfanos
 - No mete tests como sub-pasos
 
-### `sdd-requirements`, `sdd-design`, `sdd-tasks` (skills)
+### `sdd-requirements`, `sdd-prototype`, `sdd-design`, `sdd-tasks` (skills)
 
-Las constituciones compartidas. Cada subagente carga el skill correspondiente y aplica sus reglas. Si quieres cambiar las convenciones del framework (ej. cambiar a EARS en español), editas el SKILL y los subagentes lo respetan.
+Las constituciones compartidas. Cada subagente carga el skill correspondiente y aplica sus reglas. Si quieres cambiar las convenciones del framework (ej. cambiar a EARS en español, o cambiar el color del banner del prototipo), editas el SKILL y los subagentes lo respetan.
+
+El skill `sdd-prototype` es específico de la fase opcional de prototipado — define estructura de `docs/prototype/`, banner obligatorio, política de datos falsos, plantilla del `server.js` con basic auth, formato del `DEPLOY.md` con tabla de plataformas, y formato del `validation-log-vN.md`.
 
 ### Templates
 
@@ -351,6 +437,8 @@ Archivos en `templates/` con la estructura canónica y guía inline. Útiles si:
 - ❌ Saltar gates humanos. "Ejecuta todo el pipeline" rompe garantizado.
 - ❌ Ejecutar `tasks.md` en batch en lugar de tarea por sesión.
 - ❌ Validar superficialmente requirements/design y avanzar. Los errores se amplifican 10x por fase.
+- ❌ Pasar a `disenador-arquitecto` con la fase de prototipo abierta (último validation-log sin `Status: APROBADO`).
+- ❌ Saltarse la válvula de retorno: si el cliente revela un cambio estructural durante prototipo, hay que volver al analista, no parchar en HTML.
 
 ### Del requirements.md
 
@@ -358,6 +446,17 @@ Archivos en `templates/` con la estructura canónica y guía inline. Útiles si:
 - ❌ Criterios EARS en mezcla con `should`/`would`/`may`/`might`/`could`. Solo `SHALL`.
 - ❌ Implementación en requirements ("usar PostgreSQL"). Eso va en design.
 - ❌ Múltiples comportamientos en un solo criterio (señal: aparece " and " conectando acciones).
+
+### Del prototipo (fase opcional)
+
+- ❌ Usar React/Vue/Svelte o cualquier framework con build. Solo HTML + Tailwind CDN + JS vanilla/Alpine.
+- ❌ Omitir el banner "MOCKUP NO FUNCIONAL" o hacerlo dismissible.
+- ❌ Datos visibles que parezcan reales (nombres reales del cliente, cifras coherentes, dominios de email reales).
+- ❌ Implementar lógica de negocio real ("ya que estamos hago el cálculo de verdad").
+- ❌ Hardcodear credenciales en `server.js` o `DEPLOY.md`.
+- ❌ Desplegar prototipo con info sensible a GitHub Pages (público por defecto). Usar Railway/Cloudflare con auth.
+- ❌ Sobrescribir `validation-log-vN.md` de iteraciones previas.
+- ❌ Iterar más de 4-5 veces sin replantearse si el problema está en `requirements.md`.
 
 ### Del design.md
 
@@ -389,6 +488,26 @@ Archivos en `templates/` con la estructura canónica y guía inline. Útiles si:
 ### ¿Puedo saltarme el design e ir directo a tasks?
 
 No. El design es donde se toman las decisiones técnicas que evitan que el LLM downstream invente diferente cada vez. Sin design, tasks queda en el aire y el código resultante es inconsistente.
+
+### ¿Cuándo SÍ debo invocar la fase opcional de prototipo?
+
+Cuando el proyecto tiene UI relevante (web app, mobile app, dashboard) Y el cliente es no técnico o el flujo es complejo. La validación temprana via mockup desplegado vale 10x lo que cuesta porque cierra el gap entre "requirements.md aprobado en texto" y "el cliente entiende qué va a recibir". Si el proyecto es backend puro, CLI o librería, sáltala.
+
+### ¿El prototipo determina el stack final?
+
+No. El HTML+Tailwind del prototipo es **throwaway por diseño**. La decisión de stack (React, Vue, Svelte, HTMX, Astro, lo que sea) vive en `design.md` con sus ADRs. El prototipo solo valida flujo y contenido. Si el cliente ve el HTML y asume "esto será React", el agente y el banner deben dejar claro que el visual final puede diferir.
+
+### ¿Quién llena el `validation-log-vN.md`?
+
+Tú (el dev que usa el framework). NO el cliente. Asumir que el cliente edita Markdown en GitHub falla en el 90% de los casos. El patrón realista es: muestras al cliente la URL, recoges feedback (verbal, Slack, Loom), lo transcribes honestamente al log. El agente lee el log para iterar.
+
+### ¿Qué pasa si el cliente revela un requisito nuevo durante el prototipo?
+
+El agente detecta que es un cambio estructural (entidad nueva, actor nuevo, flujo nuevo, integración nueva, NFR duro nuevo) y se detiene. Te recomienda volver al `analista-entrevistas` para actualizar `requirements.md` con el nuevo Requirement, re-aprobar requirements, y solo después volver a iterar el prototipo. Esto preserva la trazabilidad EARS — corazón del framework.
+
+### ¿Puedo desplegar el prototipo a algo distinto a Railway?
+
+Sí. Railway es default por basic auth fácil + setup conocido, pero el agente soporta Netlify, Vercel, Cloudflare Pages, GitHub Pages y despliegue manual. Lo declaras en `CONSTITUTION.md` con `prototype_deploy: <nombre>` o el agente te pregunta una vez. Importante: para prototipos con info sensible del cliente, evitar GitHub Pages (público por defecto).
 
 ### ¿Y si el feature es muy chico, igual hago las 3 fases?
 
