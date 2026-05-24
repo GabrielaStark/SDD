@@ -11,6 +11,7 @@
 3. [Setup del proyecto](#3-setup-del-proyecto)
 4. [El pipeline en una imagen](#4-el-pipeline-en-una-imagen)
 5. [Fase 1: Levantamiento de requerimientos](#5-fase-1-levantamiento-de-requerimientos)
+   - [Fase 1.5 (opcional): Prototipo visual](#fase-15-opcional-prototipo-visual)
 6. [Fase 2: Diseño técnico](#6-fase-2-diseño-técnico)
 7. [Fase 3: Descomposición en tareas](#7-fase-3-descomposición-en-tareas)
 8. [Fase 4: Ejecución del código](#8-fase-4-ejecución-del-código)
@@ -85,8 +86,8 @@ Asegúrate de que estos archivos estén:
 
 ```
 mi-proyecto-nuevo/
-├── .claude/agents/       (4 archivos .md)
-├── .claude/skills/       (3 carpetas con SKILL.md)
+├── .claude/agents/       (5 archivos .md)
+├── .claude/skills/       (4 carpetas con SKILL.md)
 ├── docs/inputs/          (vacía, con .gitkeep)
 ├── docs/analysis/        (vacía, con .gitkeep)
 ├── docs/documentacion/   (SDD.md, MANUAL.md)
@@ -111,12 +112,13 @@ Debes ver:
 
 - `analista-entrevistas`
 - `arqueologo-codigo`
+- `prototipador-visual`
 - `disenador-arquitecto`
 - `descompositor-tareas`
 
-**Si NO aparecen los 4**: revisa la sección [Troubleshooting](#10-troubleshooting).
+**Si NO aparecen los 5**: revisa la sección [Troubleshooting](#10-troubleshooting).
 
-**No avances al pipeline si no aparecen los 4.** Resolver el problema ahorita es 5 minutos; descubrirlo a media fase es perder horas de trabajo.
+**No avances al pipeline si no aparecen los 5.** Resolver el problema ahorita es 5 minutos; descubrirlo a media fase es perder horas de trabajo.
 
 ---
 
@@ -142,6 +144,15 @@ Debes ver:
                   └──────────────────────┘
                             │
                   [✋ TÚ apruebas]
+                            │
+                            ▼
+                  ┌──────────────────────┐
+                  │ prototipador-visual  │  ← opcional, si hay UI
+                  └──────────────────────┘
+                            │
+                  loop: prototipo ⇄ cliente
+                            │
+                  [✋ Cliente aprueba]
                             │
                             ▼
                   ┌──────────────────────┐
@@ -293,6 +304,128 @@ Mismo checklist que greenfield, MÁS:
 
 ---
 
+## Fase 1.5 (opcional): Prototipo visual
+
+> Esta fase es **opcional**. Aplica solo cuando el proyecto tiene UI relevante y quieres validar visualmente los flujos con el cliente antes de pasar a diseño técnico. Si tu proyecto es backend puro, CLI o librería, sáltala.
+
+### Pre-requisito
+
+**`docs/requirements.md` aprobado por ti.** Si no, detente y termina la Fase 1 primero.
+
+### ¿Cuándo usarla?
+
+| Tu situación | ¿Invocar prototipo? |
+|---|---|
+| Proyecto con UI, cliente no-técnico que necesita "ver para creer" | **Sí** |
+| Proyecto con UI, pero el flujo es tan simple que con requirements queda claro | Probablemente no |
+| Backend puro, CLI, librería sin frontend | **No** |
+
+La regla práctica: si sospechas que el cliente va a decir "no, así no" cuando vea la UI final, vale la pena invertir en esta fase. Es 100x más barato cambiar un HTML throwaway que código de producción.
+
+### Paso 1: Prepara el material (opcional pero recomendado)
+
+Crea la carpeta `docs/prototype/context/` y mete lo que tengas:
+
+- `branding.md` — colores, tipografía, tono de marca del cliente.
+- `logos/` — archivos de marca (PNG, SVG).
+- `referencias/` — screenshots de competidores, inspiración visual, pantallas existentes.
+
+Si no tienes nada de esto, no pasa nada. El agente genera con placeholders genéricos en la primera iteración (colores neutros, logo `[LOGO]` en cuadro gris, tipografía del sistema). El branding se incorpora en iteraciones posteriores.
+
+### Paso 2: Invoca el agente
+
+En Claude Code:
+
+```
+Use the prototipador-visual subagent to produce docs/prototype/
+```
+
+### Paso 3: Qué esperar (iteración 1)
+
+| Fase del agente | Qué hace | Tu trabajo |
+|---|---|---|
+| **1. Lectura** | Lee `requirements.md`, `context/` y `CONSTITUTION.md` (si existe). Reporta: cantidad de requirements, pantallas inferidas, estado del branding, plataforma de despliegue. | Confirmar que su lectura es correcta. |
+| **2. Plataforma** | Te pregunta dónde desplegar (Railway default, Netlify, Vercel, Cloudflare Pages, GitHub Pages, manual). Solo pregunta si no está en `CONSTITUTION.md`. | Elegir con un número. |
+| **3. Inventario de pantallas** | Lista las pantallas que va a generar, para qué Requirement aplica cada una, y qué interacciones serán simuladas vs. estáticas. | Aprobar el plan o ajustar. |
+| **4. Generación** | Genera `docs/prototype/` completo: HTML + Tailwind CDN, banner permanente "MOCKUP NO FUNCIONAL", datos falsos, `server.js` con basic auth, `DEPLOY.md`, y `validation-log-v1.md` vacío. | Revisar los archivos generados. |
+| **5. Auto-validación** | Ejecuta checklist del SKILL ítem por ítem. Reporta ✅ o ❌. | Esperar 100% ✅. |
+| **6. Cierre** | Te dice que despliegues manualmente con las instrucciones de `DEPLOY.md`. | Desplegar, mostrar al cliente. |
+
+**Importante**: el agente **NO** hace `git push` ni despliega por su cuenta. Tú controlas qué se publica. Si quieres que él haga push, díselo explícitamente en la sesión.
+
+### Paso 4: Despliegue (tú lo haces)
+
+Sigue las instrucciones de `docs/prototype/DEPLOY.md`. El flujo típico con Railway:
+
+1. **Setup (una vez)**: crear proyecto en Railway, conectar repo, configurar root directory `docs/prototype/`, poner env vars `AUTH_USER` y `AUTH_PASS`.
+2. **Redeploy (cada iteración)**:
+   ```bash
+   git add docs/prototype/
+   git commit -m "prototype v1"
+   git push
+   ```
+   Railway redespliega automáticamente.
+
+### Paso 5: El loop iterativo con el cliente
+
+Este es el flujo que se repite hasta que el cliente apruebe:
+
+1. **Le muestras al cliente** la URL desplegada con las credenciales.
+2. **El cliente da feedback** (verbal, por Slack, Loom, lo que sea).
+3. **Tú transcribes** el feedback en `docs/prototype/validation-log-v1.md`:
+   - **Cambios cosméticos** → lo que el agente puede iterar en HTML (color, posición, texto).
+   - **Cambios estructurales** → cosas que implican requirements nuevos (rol nuevo, entidad nueva, flujo nuevo).
+   - **Preguntas sin resolver** → dudas que quedaron abiertas.
+   - **Decisión**: marcas si está aprobado, si necesita otra iteración, o si hay que volver al analista.
+4. **Invocas al agente de nuevo**:
+   ```
+   Use the prototipador-visual subagent to iterate on docs/prototype/
+   based on validation-log-v1.md
+   ```
+5. El agente genera v2, tú despliegas, muestras, transcribes, repites.
+
+### Cambios estructurales: la válvula de retorno
+
+Si el cliente pide algo que no está en requirements (un actor nuevo, una entidad nueva, un flujo completo nuevo, una integración externa), **el agente se detiene**. No intenta resolverlo en HTML — eso rompería la trazabilidad EARS.
+
+El flujo es:
+
+1. El agente te avisa: *"Esto es un cambio estructural, necesita pasar por `analista-entrevistas`."*
+2. Tú invocas al `analista-entrevistas` para actualizar `requirements.md`.
+3. Apruebas el requirements actualizado (gate humano normal).
+4. Vuelves a invocar al `prototipador-visual` con el contexto enriquecido.
+
+### Paso 6: Cuándo cerrar el loop
+
+Cuando el cliente aprueba explícitamente:
+
+1. En el último `validation-log-v{N}.md`, marca `Status: APROBADO` con fecha.
+2. Commit final con tag `prototype-approved-v{N}`.
+
+**Sin esa aprobación explícita, no avances a Fase 2 (design).**
+
+### Paso 7: Cómo validar antes de mostrar al cliente
+
+Antes de cada despliegue, verifica:
+
+- [ ] Todas las pantallas tienen el banner fijo amarillo "MOCKUP NO FUNCIONAL" (no removible).
+- [ ] Los datos visibles son obviamente falsos ("Cliente Demo", "$1,234.56", "usuario@ejemplo.com").
+- [ ] El HTML usa solo Tailwind CDN + JS vanilla — no hay React, Vue ni nada con build.
+- [ ] `DEPLOY.md` tiene instrucciones claras y NO contiene credenciales reales.
+- [ ] Los clicks navegan entre pantallas pero no ejecutan lógica de negocio real.
+- [ ] Si hubo cambios estructurales, se canalizaron al `analista-entrevistas` antes de iterar.
+
+### Heurísticas importantes
+
+- **Iteración 1 no necesita branding**. Valida estructura y flujo, no pulido visual.
+- **Si llegas a la iteración 4-5** y el cliente sigue pidiendo cambios estructurales, el problema está en `requirements.md`. Vuelve al analista para una pasada completa.
+- **El prototipo NO decide el stack**. Que esté en HTML+Tailwind no significa que el sistema final lo será. Eso lo decide `design.md`.
+- **El prototipo es throwaway**. No se reutiliza como código de producción.
+
+Si el cliente aprobó el prototipo, di explícitamente **"aprobado, sigue con design"** y pasa a la Fase 2.
+
+---
+
 ## 6. Fase 2: Diseño técnico
 
 ### Pre-requisito
@@ -416,7 +549,7 @@ El agente:
 
 ## 8. Fase 4: Ejecución del código
 
-Aquí ya no usas los 4 subagentes del framework. Usas Claude Code directamente con sus capacidades estándar, **una tarea a la vez**.
+Aquí ya no usas los 5 subagentes del framework. Usas Claude Code directamente con sus capacidades estándar, **una tarea a la vez**.
 
 ### El patrón correcto (no hay otro)
 
