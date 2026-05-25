@@ -37,6 +37,8 @@ Carga inputs:
 
 ### 2b. Mantenimiento: instalar sobre repo legacy existente
 
+> 📌 **NOTA TEMPORAL PARA EMMANUEL, MANO** — como estamos probando esto en la rama `MANTENIMIENTOS` y aún no se mergea a `main`, **usa el comando de la nota de abajo** (`--branch MANTENIMIENTOS`), NO el comando default. Cuando esto se mergee a main, ya queda el comando normal y esta nota se borra.
+
 Desde la raíz de tu repo legacy (donde está el sistema en producción), copia-pega este bloque:
 
 ```bash
@@ -47,6 +49,17 @@ cp /tmp/sdd/docs/documentacion/*.md docs/documentacion/ && \
 cp /tmp/sdd/docs/features/README.md docs/features/ && \
 rm -rf /tmp/sdd
 ```
+
+> 📌 **VERSIÓN PARA EMMANUEL (mientras probamos la rama `MANTENIMIENTOS`)** — usa este bloque, no el de arriba. Lo único que cambia es la primera línea (agregamos `--branch MANTENIMIENTOS`):
+>
+> ```bash
+> git clone --depth 1 --branch MANTENIMIENTOS https://github.com/GabrielaStark/SDD.git /tmp/sdd && \
+> cp -r /tmp/sdd/.claude /tmp/sdd/templates . && \
+> mkdir -p docs/documentacion docs/features && \
+> cp /tmp/sdd/docs/documentacion/*.md docs/documentacion/ && \
+> cp /tmp/sdd/docs/features/README.md docs/features/ && \
+> rm -rf /tmp/sdd
+> ```
 
 Esto agrega al repo legacy: `.claude/`, `templates/`, `docs/documentacion/` y `docs/features/`. No toca nada más.
 
