@@ -61,14 +61,16 @@ SDD/
 │   │   ├── analista-feature-mantenimiento.md       ← mantenimiento: intent + código prod → requirements (delta)
 │   │   ├── disenador-delta-mantenimiento.md        ← mantenimiento: requirements (delta) → design (delta)
 │   │   └── descompositor-riesgo-mantenimiento.md   ← mantenimiento: design (delta) → tasks (por riesgo)
-│   └── skills/                                     ← constituciones compartidas (7 en total)
+│   └── skills/                                     ← constituciones compartidas (9 en total)
 │       ├── sdd-requirements/SKILL.md               ← reglas del requirements.md (construcción)
 │       ├── sdd-prototype/SKILL.md                  ← reglas del docs/prototype/ (fase opcional)
 │       ├── sdd-design/SKILL.md                     ← reglas del design.md (construcción)
 │       ├── sdd-tasks/SKILL.md                      ← reglas del tasks.md (construcción)
 │       ├── sdd-requirements-mantenimiento/SKILL.md ← reglas del requirements.md (mantenimiento)
 │       ├── sdd-design-delta/SKILL.md               ← reglas del design.md (mantenimiento)
-│       └── sdd-tasks-risk/SKILL.md                 ← reglas del tasks.md (mantenimiento)
+│       ├── sdd-tasks-risk/SKILL.md                 ← reglas del tasks.md (mantenimiento)
+│       ├── onboarding/SKILL.md                     ← auxiliar: genera CLAUDE.md + BIG_PICTURE.md
+│       └── reglas-negocio/SKILL.md                 ← auxiliar: genera REGLAS_DE_NEGOCIO.md
 ├── docs/
 │   ├── inputs/                                     ← material crudo (greenfield)
 │   ├── analysis/                                   ← análisis arqueológico previo (brownfield-rewrite)
@@ -240,7 +242,7 @@ Si dudas entre brownfield-rewrite y mantenimiento: **¿el plan es rehacer arquit
 
 **Mantenimiento**:
 
-1. (Recomendado) Corre primero las skills externas `onboarding` (genera `docs/CLAUDE.md` + `docs/BIG_PICTURE.md`) y `reglas-negocio` (genera `docs/REGLAS_DE_NEGOCIO.md`) para crear el sustrato.
+1. (Recomendado) Corre primero las skills auxiliares `onboarding` (genera `docs/CLAUDE.md` + `docs/BIG_PICTURE.md`) y `reglas-negocio` (genera `docs/REGLAS_DE_NEGOCIO.md`) para crear el sustrato. Ambas vienen empaquetadas con el framework en `.claude/skills/`.
 2. Crea la carpeta del feature: `docs/features/<slug-del-feature>/`.
 3. Copia el template del intent: `cp templates/intent.md docs/features/<slug>/intent.md`.
 4. Llena el `intent.md` describiendo el feature en lenguaje de negocio.

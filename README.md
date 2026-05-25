@@ -46,7 +46,7 @@ cp -r /tmp/sdd-template/docs/documentacion docs/
 mkdir -p docs/features
 ```
 
-**Recomendado antes del primer feature**: correr las skills externas `onboarding` y `reglas-negocio` para generar `docs/CLAUDE.md`, `docs/BIG_PICTURE.md`, `docs/REGLAS_DE_NEGOCIO.md` (sustrato del análisis).
+**Recomendado antes del primer feature**: correr las skills auxiliares `onboarding` y `reglas-negocio` (ya incluidas en `.claude/skills/`) para generar `docs/CLAUDE.md`, `docs/BIG_PICTURE.md`, `docs/REGLAS_DE_NEGOCIO.md` (sustrato del análisis).
 
 Después, por cada feature:
 ```bash
@@ -124,14 +124,16 @@ SDD/
 │   │   ├── analista-feature-mantenimiento.md         ← mantenimiento: intent + código prod → requirements (delta)
 │   │   ├── disenador-delta-mantenimiento.md          ← mantenimiento: requirements (delta) → design (delta)
 │   │   └── descompositor-riesgo-mantenimiento.md     ← mantenimiento: design (delta) → tasks (por riesgo)
-│   └── skills/                                       ← 7 constituciones compartidas
+│   └── skills/                                       ← 9 constituciones compartidas
 │       ├── sdd-requirements/SKILL.md                 ← construcción
 │       ├── sdd-prototype/SKILL.md                    ← transversal (fase opcional)
 │       ├── sdd-design/SKILL.md                       ← construcción
 │       ├── sdd-tasks/SKILL.md                        ← construcción
 │       ├── sdd-requirements-mantenimiento/SKILL.md   ← mantenimiento
 │       ├── sdd-design-delta/SKILL.md                 ← mantenimiento
-│       └── sdd-tasks-risk/SKILL.md                   ← mantenimiento
+│       ├── sdd-tasks-risk/SKILL.md                   ← mantenimiento
+│       ├── onboarding/SKILL.md                       ← auxiliar: genera CLAUDE.md + BIG_PICTURE.md
+│       └── reglas-negocio/SKILL.md                   ← auxiliar: genera REGLAS_DE_NEGOCIO.md
 ├── docs/
 │   ├── inputs/                                       ← material crudo (greenfield)
 │   ├── analysis/                                     ← análisis previo (brownfield-rewrite)
@@ -223,7 +225,7 @@ entrevistas               codigo                       mantenimiento
   - Greenfield: entrevistas, transcripciones, formularios
   - Brownfield-rewrite: código legacy + arqueología previa
   - Mantenimiento: código en producción + descripción del feature
-- (Mantenimiento recomendado) Skills externas `onboarding` y `reglas-negocio` para generar el sustrato (`CLAUDE.md`, `BIG_PICTURE.md`, `REGLAS_DE_NEGOCIO.md`)
+- (Mantenimiento recomendado) Skills auxiliares `onboarding` y `reglas-negocio` (ya incluidas en `.claude/skills/`) para generar el sustrato (`CLAUDE.md`, `BIG_PICTURE.md`, `REGLAS_DE_NEGOCIO.md`)
 
 ---
 

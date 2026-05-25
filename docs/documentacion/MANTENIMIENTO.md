@@ -238,13 +238,13 @@ docs/features/<slug-del-feature>/
 
 Estos tres archivos viven en `docs/` raíz (no dentro de `features/`) porque aplican al sistema completo:
 
-- **`docs/CLAUDE.md`** — guía del repo. Generada por la skill global `onboarding`. Contiene: cómo se levanta el ambiente, comandos de build/test, convenciones de naming, estructura de carpetas, dependencias clave. El agente de mantenimiento la usa para saber cómo correr los tests existentes.
-- **`docs/BIG_PICTURE.md`** — radiografía arquitectónica. Generada por la skill global `onboarding`. Contiene: capas, módulos, flujo de datos, integraciones externas, patrones usados. El agente de mantenimiento la usa para saber qué arquitectura es "lo heredado e inmutable".
-- **`docs/REGLAS_DE_NEGOCIO.md`** — reglas de negocio explícitas. Generada por la skill global `reglas-negocio`. Contiene: roles, permisos, flujos de estados, validaciones, mapa funcional. El agente de mantenimiento la usa para identificar invariantes con seguridad.
+- **`docs/CLAUDE.md`** — guía del repo. Generada por la skill `onboarding` (incluida en `.claude/skills/onboarding/`). Contiene: cómo se levanta el ambiente, comandos de build/test, convenciones de naming, estructura de carpetas, dependencias clave. El agente de mantenimiento la usa para saber cómo correr los tests existentes.
+- **`docs/BIG_PICTURE.md`** — radiografía arquitectónica. Generada también por `onboarding`. Contiene: capas, módulos, flujo de datos, integraciones externas, patrones usados. El agente de mantenimiento la usa para saber qué arquitectura es "lo heredado e inmutable".
+- **`docs/REGLAS_DE_NEGOCIO.md`** — reglas de negocio explícitas. Generada por la skill `reglas-negocio` (incluida en `.claude/skills/reglas-negocio/`). Contiene: roles, permisos, flujos de estados, validaciones, mapa funcional. El agente de mantenimiento la usa para identificar invariantes con seguridad.
 
 Si no existen, el agente puede continuar pero recomienda al humano correrlas primero. La calidad del análisis mejora ~10x con el sustrato.
 
-**Estos archivos NO son del framework SDD** — son productos de skills paralelas (`onboarding`, `reglas-negocio`) que el framework consume cuando están disponibles.
+**Estas dos skills SÍ son del framework SDD** (`.claude/skills/onboarding/` y `.claude/skills/reglas-negocio/`), no son externas. Son skills auxiliares del pipeline de mantenimiento: agnósticas al pipeline SDD per se (sirven para analizar cualquier repo), pero el pipeline de mantenimiento las usa como sustrato. Por eso van empaquetadas con el framework — para que cualquiera que clone el template las tenga listas sin instalación extra.
 
 ---
 

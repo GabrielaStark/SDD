@@ -429,7 +429,7 @@ Mismo checklist que greenfield, MÁS:
 
 #### Pre-requisito recomendado: generar el sustrato
 
-Antes del primer feature de mantenimiento sobre un sistema, **se recomienda fuertemente** correr dos skills externas (no son del pipeline pero su output sirve de sustrato):
+Antes del primer feature de mantenimiento sobre un sistema, **se recomienda fuertemente** correr dos skills auxiliares (vienen incluidas en `.claude/skills/`, no son del pipeline de mantenimiento per se pero su output sirve de sustrato):
 
 ```
 # 1. Para generar CLAUDE.md y BIG_PICTURE.md (radiografía del repo)
@@ -991,7 +991,7 @@ Pega esto en una nota o en un comentario al inicio de tu sesión:
 
 ### Adicionales para mantenimiento
 
-7. **Antes del primer feature, corre `onboarding` y `reglas-negocio`** (skills externas). Generan el sustrato `CLAUDE.md` + `BIG_PICTURE.md` + `REGLAS_DE_NEGOCIO.md`. Sin sustrato, el análisis pierde mucha calidad.
+7. **Antes del primer feature, corre `onboarding` y `reglas-negocio`** (skills auxiliares incluidas en el framework). Generan el sustrato `CLAUDE.md` + `BIG_PICTURE.md` + `REGLAS_DE_NEGOCIO.md`. Sin sustrato, el análisis pierde mucha calidad.
 8. **Surface of Contact e Invariantes Preservadas son el contrato del feature.** Si las apruebas sin leer línea por línea, no te quejes después de regresiones.
 9. **Regression Shield primero, sin excepción.** Los tests de blindaje van antes que el código nuevo. Saltarlos garantiza regresiones.
 10. **No-Regression Validation no es opcional.** La última tarea del tasks.md es obligatoria. "Se ve bien" no es validación — correr la suite + verificar invariantes manualmente sí.
@@ -1186,7 +1186,7 @@ El gate final está ahí para atrapar exactamente esto. Si saltó la alarma, hiz
 - **Delta**: el conjunto de cambios que un feature de mantenimiento introduce. Los artefactos del pipeline de mantenimiento describen **solo el delta**, no el sistema completo.
 - **Surface of Contact**: tabla en el `requirements.md` de mantenimiento que lista exhaustivamente los módulos, archivos, endpoints, tablas que el feature toca, lee, modifica o explícitamente NO toca. Cada fila con nivel de riesgo (alto / medio / bajo).
 - **Invariantes Preservadas**: lista numerada (`I.1`, `I.2`, ...) de comportamientos del sistema existente que NO deben cambiar tras el feature. Cada una con referencia al código fuente (`<!-- source: archivo:líneas -->`) y un test (existente o de blindaje) que la valida.
-- **Sustrato (de mantenimiento)**: los tres archivos `docs/CLAUDE.md`, `docs/BIG_PICTURE.md` y `docs/REGLAS_DE_NEGOCIO.md` que documentan el sistema existente. Generados por las skills externas `onboarding` y `reglas-negocio`. Recomendados pero no obligatorios.
+- **Sustrato (de mantenimiento)**: los tres archivos `docs/CLAUDE.md`, `docs/BIG_PICTURE.md` y `docs/REGLAS_DE_NEGOCIO.md` que documentan el sistema existente. Generados por las skills auxiliares `onboarding` y `reglas-negocio` (incluidas en `.claude/skills/`). Recomendados pero no obligatorios.
 - **Intent.md**: archivo de entrada del pipeline de mantenimiento. Lo escribe el humano describiendo el feature en lenguaje de negocio. Vive en `docs/features/<slug>/intent.md`.
 - **Regression Shield**: primera sección del `tasks.md` de mantenimiento. Tareas de blindaje (verbo `Blindar`) que escriben tests de regresión sobre código existente que el feature va a tocar. Se ejecutan ANTES de cualquier modificación.
 - **No-Regression Validation**: última sección obligatoria del `tasks.md` de mantenimiento. Tarea de verbo `Verificar regresión` que corre suite completa + verifica cada invariante manualmente antes de cerrar el feature.
@@ -1195,10 +1195,12 @@ El gate final está ahí para atrapar exactamente esto. Si saltó la alarma, hiz
 - **Coexistencia**: estrategia de cómo el delta convive con flujos existentes sin alterarlos. Documentada en sección 6 del `design.md` delta cuando hay puntos de Surface of Contact con riesgo medio/alto.
 - **Válvula de retorno (mantenimiento)**: cuando el design propone tocar algo fuera de Surface of Contact, volver al analista para actualizar el requirements antes de seguir.
 
-### Skills externas (no del framework SDD, pero usadas como sustrato)
+### Skills auxiliares del framework (usadas como sustrato del pipeline de mantenimiento)
 
-- **onboarding** (skill): protocolo de reconocimiento para proyectos heredados. Genera `CLAUDE.md` (guía del repo) y `BIG_PICTURE.md` (radiografía arquitectónica). Recomendada antes del primer feature de mantenimiento sobre un sistema.
-- **reglas-negocio** (skill): extrae roles, permisos, flujos de estados, validaciones, mapa funcional del código existente. Genera `REGLAS_DE_NEGOCIO.md`. Recomendada antes del primer feature de mantenimiento.
+- **onboarding** (skill): protocolo de reconocimiento para proyectos heredados. Genera `CLAUDE.md` (guía del repo) y `BIG_PICTURE.md` (radiografía arquitectónica). Recomendada antes del primer feature de mantenimiento sobre un sistema. Vive en `.claude/skills/onboarding/`.
+- **reglas-negocio** (skill): extrae roles, permisos, flujos de estados, validaciones, mapa funcional del código existente. Genera `docs/REGLAS_DE_NEGOCIO.md`. Recomendada antes del primer feature de mantenimiento. Vive en `.claude/skills/reglas-negocio/`.
+
+Aunque son del framework SDD, son **agnósticas al pipeline SDD per se** — sirven para analizar cualquier repo, no solo proyectos que usen SDD. El pipeline de mantenimiento las usa porque su output es exactamente el sustrato que el agente `analista-feature-mantenimiento` necesita.
 
 ---
 
