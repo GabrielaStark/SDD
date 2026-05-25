@@ -284,20 +284,22 @@ gh repo create mi-proyecto-nuevo --template GabrielaStark/SDD
 cd mi-proyecto-nuevo
 ```
 
-**Mantenimiento**: el framework se **agrega encima** del repo del sistema en producción. NO crees un repo nuevo. Lo que harás:
+**Mantenimiento**: el framework se **agrega encima** del repo legacy. NO crees un repo nuevo.
+
+Desde la raíz del repo legacy (donde está el sistema en producción), copia-pega:
 
 ```bash
-cd /ruta/al/repo/del/sistema-en-prod   # tu repo de producción, intacto
-# Copiar las piezas del framework SDD necesarias:
-cp -r /ruta/al/clone/de/SDD/.claude .
-cp -r /ruta/al/clone/de/SDD/templates .
-mkdir -p docs/features
-cp -r /ruta/al/clone/de/SDD/docs/documentacion docs/
+git clone --depth 1 https://github.com/GabrielaStark/SDD.git /tmp/sdd && \
+cp -r /tmp/sdd/.claude /tmp/sdd/templates . && \
+mkdir -p docs/documentacion docs/features && \
+cp /tmp/sdd/docs/documentacion/*.md docs/documentacion/ && \
+cp /tmp/sdd/docs/features/README.md docs/features/ && \
+rm -rf /tmp/sdd
 ```
 
-**Importante para mantenimiento**: solo copias `.claude/` (agentes y skills) + `templates/` + `docs/documentacion/` + `docs/features/` vacío. **NO copies** `docs/inputs/`, `docs/analysis/`, ni los archivos `requirements.md`/`design.md`/`tasks.md` raíz — esos son del pipeline de construcción y van a estorbar.
+Eso agrega `.claude/`, `templates/`, `docs/documentacion/` y `docs/features/` al repo legacy. No toca nada del código existente.
 
-Si el repo del cliente ya tiene un `.claude/` propio o un `CLAUDE.md` propio, **no los sobreescribas**. Fusiona con cuidado o pregunta al cliente cómo proceder.
+**Si el repo legacy ya tiene `.claude/` propio o `CLAUDE.md` en raíz**: el comando va a fallar o fusionar incorrectamente. Aborta, revisa qué tiene el repo, y decide caso por caso (renombrar, fusionar manual, o pedir al cliente cómo proceder).
 
 ### Una vez elegido el pipeline
 
@@ -429,19 +431,16 @@ Mismo checklist que greenfield, MÁS:
 
 #### Pre-requisito recomendado: generar el sustrato
 
-Antes del primer feature de mantenimiento sobre un sistema, **se recomienda fuertemente** correr dos skills auxiliares (vienen incluidas en `.claude/skills/`, no son del pipeline de mantenimiento per se pero su output sirve de sustrato):
+Antes del primer feature, una sola vez por repo, corre estas dos skills desde Claude Code para generar el sustrato:
 
 ```
-# 1. Para generar CLAUDE.md y BIG_PICTURE.md (radiografía del repo)
-Skill: onboarding
-
-# 2. Para generar REGLAS_DE_NEGOCIO.md (roles, permisos, flujos, validaciones)
-Skill: reglas-negocio
+/onboarding         → genera docs/CLAUDE.md y docs/BIG_PICTURE.md
+/reglas-negocio     → genera docs/REGLAS_DE_NEGOCIO.md
 ```
 
-Estos archivos viven en `docs/` raíz (no dentro de `features/`) porque aplican a todo el sistema. El agente del pipeline los lee como base.
+Los tres archivos viven en `docs/` raíz (no dentro de `features/`) porque aplican a todo el sistema. El agente de mantenimiento los lee como contexto base.
 
-**¿Y si no los tengo?** Puedes continuar igual — el agente avisa del riesgo y se aplica con más cuidado. Pero la calidad del análisis y la captura de invariantes mejora ~10x con el sustrato. Si vas a meter más de un feature en el sistema, vale la pena correr esto **una vez**.
+**Si no los generas**: el pipeline funciona igual, pero el agente tiene que inferir más cosas del código directamente y aumenta la probabilidad de perder invariantes. Inversión: 5-10 minutos cada skill, una vez por sistema.
 
 #### Paso 1: Crear la carpeta del feature
 

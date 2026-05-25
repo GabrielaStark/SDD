@@ -35,24 +35,29 @@ Carga inputs:
 - **Greenfield**: material de levantamiento en `docs/inputs/` (transcripciones, imágenes, formularios).
 - **Brownfield-rewrite**: análisis arqueológico previo en `docs/analysis/` + código legacy accesible.
 
-### 2b. Mantenimiento: instalar sobre repo existente
+### 2b. Mantenimiento: instalar sobre repo legacy existente
+
+Desde la raíz de tu repo legacy (donde está el sistema en producción), copia-pega este bloque:
 
 ```bash
-cd /ruta/al/repo/del/sistema-en-prod    # tu repo de producción, intacto
-git clone https://github.com/GabrielaStark/SDD.git /tmp/sdd-template
-cp -r /tmp/sdd-template/.claude .
-cp -r /tmp/sdd-template/templates .
-cp -r /tmp/sdd-template/docs/documentacion docs/
-mkdir -p docs/features
+git clone --depth 1 https://github.com/GabrielaStark/SDD.git /tmp/sdd && \
+cp -r /tmp/sdd/.claude /tmp/sdd/templates . && \
+mkdir -p docs/documentacion docs/features && \
+cp /tmp/sdd/docs/documentacion/*.md docs/documentacion/ && \
+cp /tmp/sdd/docs/features/README.md docs/features/ && \
+rm -rf /tmp/sdd
 ```
 
-**Recomendado antes del primer feature**: correr las skills auxiliares `onboarding` y `reglas-negocio` (ya incluidas en `.claude/skills/`) para generar `docs/CLAUDE.md`, `docs/BIG_PICTURE.md`, `docs/REGLAS_DE_NEGOCIO.md` (sustrato del análisis).
+Esto agrega al repo legacy: `.claude/`, `templates/`, `docs/documentacion/` y `docs/features/`. No toca nada más.
 
-Después, por cada feature:
+**Antes del primer feature** (una sola vez por repo) — genera el sustrato corriendo las skills `onboarding` y `reglas-negocio` desde Claude Code. Producen `docs/CLAUDE.md`, `docs/BIG_PICTURE.md` y `docs/REGLAS_DE_NEGOCIO.md`.
+
+**Por cada feature nuevo**:
+
 ```bash
 mkdir -p docs/features/<slug-del-feature>
 cp templates/intent.md docs/features/<slug-del-feature>/intent.md
-# edita el intent.md describiendo el feature
+# edita docs/features/<slug-del-feature>/intent.md
 ```
 
 ### 3. Abrir Claude Code y ejecutar el pipeline
