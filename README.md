@@ -2,13 +2,27 @@
 
 > Framework de Spec-Driven Development con subagentes especializados para Claude Code.
 
-Repo template para arrancar cualquier proyecto con metodología SDD adaptada a nuestro flujo de trabajo. Incluye subagentes para greenfield y brownfield, skills compartidos como constitución, templates y documentación completa.
+Repo template para arrancar cualquier proyecto con metodología SDD adaptada a nuestro flujo de trabajo. Incluye **tres pipelines paralelos**:
+
+- **Greenfield** — construir sistema desde cero
+- **Brownfield-rewrite** — reescribir/modernizar un legacy
+- **Mantenimiento** — agregar features a un sistema en producción **sin romper** lo existente
+
+Más subagentes especializados, skills compartidos como constitución, templates y documentación completa.
 
 ---
 
 ## Quick Start
 
-### 1. Clonar como template
+### 1. Elige tu pipeline
+
+| Tu situación | Pipeline | Cómo "instalar" el framework |
+|---|---|---|
+| Construir desde cero (tienes entrevistas, formularios, imágenes) | **Greenfield** | Clonar como repo nuevo |
+| Reescribir legacy (tienes código + arqueología previa) | **Brownfield-rewrite** | Clonar como repo nuevo |
+| Sistema en producción + agregar feature sin romper nada | **Mantenimiento** | Copiar `.claude/`, `templates/`, `docs/features/` y `docs/documentacion/` **al repo del sistema existente** |
+
+### 2a. Greenfield / Brownfield-rewrite: clonar como template
 
 ```bash
 gh repo create mi-proyecto-nuevo --template GabrielaStark/SDD
@@ -17,35 +31,58 @@ git clone https://github.com/GabrielaStark/SDD.git mi-proyecto-nuevo
 cd mi-proyecto-nuevo && rm -rf .git && git init
 ```
 
-### 2. Cargar inputs
+Carga inputs:
+- **Greenfield**: material de levantamiento en `docs/inputs/` (transcripciones, imágenes, formularios).
+- **Brownfield-rewrite**: análisis arqueológico previo en `docs/analysis/` + código legacy accesible.
 
-- **Greenfield**: mete material de levantamiento en `docs/inputs/` (transcripciones, imágenes, formularios).
-- **Brownfield**: mete análisis arqueológico previo en `docs/analysis/` + código legacy accesible.
+### 2b. Mantenimiento: instalar sobre repo existente
+
+```bash
+cd /ruta/al/repo/del/sistema-en-prod    # tu repo de producción, intacto
+git clone https://github.com/GabrielaStark/SDD.git /tmp/sdd-template
+cp -r /tmp/sdd-template/.claude .
+cp -r /tmp/sdd-template/templates .
+cp -r /tmp/sdd-template/docs/documentacion docs/
+mkdir -p docs/features
+```
+
+**Recomendado antes del primer feature**: correr las skills externas `onboarding` y `reglas-negocio` para generar `docs/CLAUDE.md`, `docs/BIG_PICTURE.md`, `docs/REGLAS_DE_NEGOCIO.md` (sustrato del análisis).
+
+Después, por cada feature:
+```bash
+mkdir -p docs/features/<slug-del-feature>
+cp templates/intent.md docs/features/<slug-del-feature>/intent.md
+# edita el intent.md describiendo el feature
+```
 
 ### 3. Abrir Claude Code y ejecutar el pipeline
 
 ```
-# Verificar que los subagentes estén disponibles
+# Verificar que los subagentes estén disponibles (deberías ver 8)
 /agents
 
-# Fase 1 — Requirements (elige uno según el caso)
-Use the analista-entrevistas subagent to produce docs/requirements.md
-Use the arqueologo-codigo subagent to produce docs/requirements.md
+# Fase 1 — Requirements (elige UNO según tu pipeline)
+Use the analista-entrevistas subagent to produce docs/requirements.md                                # greenfield
+Use the arqueologo-codigo subagent to produce docs/requirements.md                                   # brownfield-rewrite
+Use the analista-feature-mantenimiento subagent to produce docs/features/<slug>/requirements.md     # mantenimiento
 
 # [revisión humana → aprobación]
 
-# Fase 2 (opcional) — Prototipo visual (solo si el proyecto tiene UI relevante)
-Use the prototipador-visual subagent to produce docs/prototype/
+# Fase 2 (opcional) — Prototipo visual (transversal, solo si UI relevante)
+Use the prototipador-visual subagent to produce docs/prototype/                  # construcción
+Use the prototipador-visual subagent to produce docs/features/<slug>/prototype/  # mantenimiento
 
 # [loop iterativo con cliente → aprobación del cliente]
 
-# Fase 3 — Design
-Use the disenador-arquitecto subagent to produce docs/design.md
+# Fase 3 — Design (elige UNO según pipeline)
+Use the disenador-arquitecto subagent to produce docs/design.md                                # construcción
+Use the disenador-delta-mantenimiento subagent to produce docs/features/<slug>/design.md       # mantenimiento
 
 # [revisión humana → aprobación]
 
-# Fase 4 — Tasks
-Use the descompositor-tareas subagent to produce docs/tasks.md
+# Fase 4 — Tasks (elige UNO según pipeline)
+Use the descompositor-tareas subagent to produce docs/tasks.md                                       # construcción
+Use the descompositor-riesgo-mantenimiento subagent to produce docs/features/<slug>/tasks.md         # mantenimiento
 
 # [revisión humana → aprobación]
 
@@ -56,7 +93,10 @@ Use the descompositor-tareas subagent to produce docs/tasks.md
 
 Toda la guía paso a paso, anti-patrones, FAQ y referencia de componentes está en:
 
-📖 [`docs/documentacion/SDD.md`](docs/documentacion/SDD.md)
+- 📖 [`docs/documentacion/SDD.md`](docs/documentacion/SDD.md) — guía conceptual del framework
+- 📋 [`docs/documentacion/Como_se_usan.md`](docs/documentacion/Como_se_usan.md) — manual paso a paso
+- 🎨 [`docs/documentacion/PROTOTIPO.md`](docs/documentacion/PROTOTIPO.md) — fase opcional de prototipo
+- 🔧 [`docs/documentacion/MANTENIMIENTO.md`](docs/documentacion/MANTENIMIENTO.md) — pipeline de mantenimiento
 
 ---
 
@@ -75,54 +115,93 @@ Está en fase "Assess" del Tech Radar de Thoughtworks (2025-2026). Práctica eme
 ```
 SDD/
 ├── .claude/
-│   ├── agents/                            ← 5 subagentes especializados
-│   │   ├── analista-entrevistas.md       ← greenfield: material → requirements
-│   │   ├── arqueologo-codigo.md           ← brownfield: legacy → requirements
-│   │   ├── prototipador-visual.md         ← (opcional) requirements → mockup desplegado
-│   │   ├── disenador-arquitecto.md        ← requirements → design
-│   │   └── descompositor-tareas.md        ← design → tasks
-│   └── skills/                            ← constituciones compartidas
-│       ├── sdd-requirements/SKILL.md
-│       ├── sdd-prototype/SKILL.md
-│       ├── sdd-design/SKILL.md
-│       └── sdd-tasks/SKILL.md
+│   ├── agents/                                       ← 8 subagentes especializados
+│   │   ├── analista-entrevistas.md                  ← greenfield: material → requirements
+│   │   ├── arqueologo-codigo.md                      ← brownfield-rewrite: legacy → requirements
+│   │   ├── prototipador-visual.md                    ← (opcional) requirements → mockup desplegado
+│   │   ├── disenador-arquitecto.md                   ← construcción: requirements → design
+│   │   ├── descompositor-tareas.md                   ← construcción: design → tasks
+│   │   ├── analista-feature-mantenimiento.md         ← mantenimiento: intent + código prod → requirements (delta)
+│   │   ├── disenador-delta-mantenimiento.md          ← mantenimiento: requirements (delta) → design (delta)
+│   │   └── descompositor-riesgo-mantenimiento.md     ← mantenimiento: design (delta) → tasks (por riesgo)
+│   └── skills/                                       ← 7 constituciones compartidas
+│       ├── sdd-requirements/SKILL.md                 ← construcción
+│       ├── sdd-prototype/SKILL.md                    ← transversal (fase opcional)
+│       ├── sdd-design/SKILL.md                       ← construcción
+│       ├── sdd-tasks/SKILL.md                        ← construcción
+│       ├── sdd-requirements-mantenimiento/SKILL.md   ← mantenimiento
+│       ├── sdd-design-delta/SKILL.md                 ← mantenimiento
+│       └── sdd-tasks-risk/SKILL.md                   ← mantenimiento
 ├── docs/
-│   ├── inputs/                            ← material crudo (greenfield)
-│   ├── analysis/                          ← análisis previo (brownfield)
-│   ├── requirements.md                    ← OUTPUT fase 1
-│   ├── prototype/                         ← OUTPUT fase 2 (opcional, desplegable)
-│   ├── design.md                          ← OUTPUT fase 3
-│   ├── tasks.md                           ← OUTPUT fase 4
+│   ├── inputs/                                       ← material crudo (greenfield)
+│   ├── analysis/                                     ← análisis previo (brownfield-rewrite)
+│   ├── features/                                     ← pipeline mantenimiento
+│   │   └── <slug>/{intent,requirements,design,tasks}.md
+│   ├── requirements.md                               ← OUTPUT construcción
+│   ├── prototype/                                    ← OUTPUT prototipo (construcción)
+│   ├── design.md                                     ← OUTPUT construcción
+│   ├── tasks.md                                      ← OUTPUT construcción
 │   └── documentacion/
-│       ├── SDD.md                         ← guía completa
-│       └── PROTOTIPO.md                   ← decisiones de la fase opcional de prototipo
-└── templates/                             ← templates con guía inline
-    ├── requirements.md
-    ├── design.md
-    └── tasks.md
+│       ├── SDD.md                                    ← guía conceptual
+│       ├── Como_se_usan.md                           ← manual paso a paso
+│       ├── PROTOTIPO.md                              ← decisiones de la fase opcional
+│       └── MANTENIMIENTO.md                          ← decisiones del pipeline de mantenimiento
+└── templates/                                        ← templates con guía inline
+    ├── requirements.md, design.md, tasks.md          ← construcción
+    └── intent.md, requirements-mantenimiento.md,     ← mantenimiento
+        design-delta.md, tasks-riesgo.md
 ```
 
 ---
 
-## Pipeline en una imagen
+## Tres pipelines en una imagen
 
 ```
-inputs/ o analysis/
-        ↓
-[analista o arqueologo]  → docs/requirements.md  → [gate humano]
-        ↓
-[prototipador-visual]    → docs/prototype/       → [gate cliente]
-   (opcional — solo si       (loop iterativo
-    hay UI relevante)         con validación)
-        ↓
-[disenador-arquitecto]   → docs/design.md        → [gate humano]
-        ↓
-[descompositor-tareas]   → docs/tasks.md         → [gate humano]
-        ↓
-   tarea por sesión + revisión humana → código + tests
+GREENFIELD                BROWNFIELD-REWRITE          MANTENIMIENTO
+(desde cero)              (reescribir legacy)         (feature a sistema en prod)
+    │                          │                              │
+    ▼                          ▼                              ▼
+docs/inputs/              docs/analysis/                docs/features/<X>/
+    │                          │                              │
+    ▼                          ▼                              ▼
+analista-                 arqueologo-                  analista-feature-
+entrevistas               codigo                       mantenimiento
+    │                          │                              │
+    └──────────┬───────────────┘                              │
+               ▼                                              ▼
+   docs/requirements.md                            docs/features/<X>/requirements.md
+   (sistema completo)                              (DELTA + Surface of Contact
+               │                                    + Invariantes Preservadas)
+       [gate humano]                                          │
+               │                                       [gate humano]
+               ▼                                              │
+   (prototipo opcional, transversal a los tres) ──────────────┤
+               │                                              │
+       [gate cliente]                                         │
+               ▼                                              ▼
+   disenador-arquitecto                            disenador-delta-mantenimiento
+               │                                              │
+               ▼                                              ▼
+   docs/design.md                                  docs/features/<X>/design.md
+   (arquitectura completa)                         (delta sobre arq. heredada)
+       [gate humano]                                  [gate humano]
+               ▼                                              ▼
+   descompositor-tareas                            descompositor-riesgo-
+                                                    mantenimiento
+               │                                              │
+               ▼                                              ▼
+   docs/tasks.md                                   docs/features/<X>/tasks.md
+   (orden por capa)                                (orden por RIESGO de regresión)
+       [gate humano]                                  [gate humano]
+               │                                              │
+               └────────────────────┬─────────────────────────┘
+                                    ▼
+                        tarea por sesión + revisión humana → código + tests
 ```
 
-**Los gates humanos no son opcionales.** Saltarse uno propaga errores 10x a la siguiente fase. La fase de prototipo es opcional pero, si se ejecuta, su gate de aprobación del cliente es obligatorio antes de pasar a design.
+**Los gates humanos no son opcionales.** Saltarse uno propaga errores 10x a la siguiente fase.
+
+**Diferencia clave del pipeline de mantenimiento**: la arquitectura/stack son **heredados e inmutables**, los artefactos describen solo el **delta**, las tasks van ordenadas por **riesgo de regresión** (Regression Shield primero, No-Regression Validation al final), y se documentan explícitamente las **Invariantes Preservadas** del sistema existente.
 
 ---
 
@@ -132,14 +211,19 @@ inputs/ o analysis/
 2. **Cada fase requiere aprobación humana explícita** antes de pasar a la siguiente.
 3. **Los SKILLs son absolutos.** Si una regla no encaja en un caso, el caso probablemente no es para SDD — no inventes excepciones.
 4. **Trazabilidad bidireccional.** Cada línea de código se justifica en una tarea → decisión de design → criterio EARS → historia de usuario.
+5. **(Mantenimiento)** El Regression Shield va primero, la No-Regression Validation va última. Ambas son obligatorias.
 
 ---
 
 ## Stack y requisitos
 
 - **Claude Code** instalado
-- Acceso a modelo Claude Opus (recomendado para los 4 subagentes)
-- Material de levantamiento o código legacy según el modo
+- Acceso a modelo Claude Opus (recomendado para los 8 subagentes)
+- Material según el pipeline:
+  - Greenfield: entrevistas, transcripciones, formularios
+  - Brownfield-rewrite: código legacy + arqueología previa
+  - Mantenimiento: código en producción + descripción del feature
+- (Mantenimiento recomendado) Skills externas `onboarding` y `reglas-negocio` para generar el sustrato (`CLAUDE.md`, `BIG_PICTURE.md`, `REGLAS_DE_NEGOCIO.md`)
 
 ---
 
