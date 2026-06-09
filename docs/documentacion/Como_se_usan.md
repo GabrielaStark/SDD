@@ -903,42 +903,158 @@ El agente `descompositor-riesgo-mantenimiento`:
 
 Aquí ya no usas los subagentes del framework. Usas Claude Code directamente con sus capacidades estándar, **una tarea a la vez**.
 
-### El patrón correcto (no hay otro)
+### Principio rector: la corrección manda sobre el ahorro
 
-Para cada tarea pendiente en `tasks.md`:
+Antes de cualquier técnica de ahorro, fija esto:
 
-1. Abre una **conversación nueva** en Claude Code.
-2. Dale contexto mínimo y enfocado:
+> **El código se genera desde la especificación leída, nunca desde lo que el agente "recuerde" o infiera.** Si el agente no tiene un criterio EARS o una sección del design frente a él, NO debe implementarlo de memoria — debe leerlo o preguntar. Un token ahorrado a costa de una inferencia incorrecta cuesta una sesión completa de re-trabajo.
+
+Por lo tanto, el ahorro de tokens **nunca** viene de leer menos especificación. Viene de **leer la especificación completa UNA sola vez y reutilizar ese contexto en varias tareas**. Esa es la única forma de ahorro compatible con SDD.
+
+### El patrón recomendado: trabajar por lotes
+
+La unidad de trabajo es el **lote**: un grupo de tareas contiguas de la misma capa, ejecutadas en **una sola conversación**, con el contexto completo cargado al inicio.
+
+¿Por qué es a la vez lo más correcto y lo más barato?
+
+- **Correcto**: el agente tiene `requirements.md` y `design.md` ÍNTEGROS en contexto durante todo el lote. Cada decisión se toma con la spec completa a la vista — sin fragmentos, sin inferencias.
+- **Barato**: esos documentos se pagan una vez por lote, no una vez por tarea. Abrir una conversación nueva por cada tarea obliga al agente a releer todo desde cero (~56k tokens de spec por tarea, multiplicado por 48 tareas).
+
+**El procedimiento:**
+
+1. Abre **una** conversación nueva en Claude Code.
+2. Dale este prompt (cambia los números por los de tu lote):
 
    ```
-   Quiero que ejecutes la tarea N de docs/tasks.md.
+   Lee COMPLETOS docs/tasks.md, docs/requirements.md y docs/design.md, una sola vez.
 
-   Contexto relevante:
-   - docs/requirements.md (criterios EARS: X.Y, X.Z)
-   - docs/design.md (sección 3 Data Model y sección 4 Interface Contracts)
+   Después ejecuta las tareas 3, 4 y 5 (capa Data Model) en orden, una por una.
+   Reglas:
+   - Implementa cada tarea ÚNICAMENTE desde lo que dicen los documentos leídos.
+     Si algo no está especificado o es ambiguo, DETENTE y pregúntame; no lo infieras.
+   - Respeta las erratas y resoluciones de la sección "Erratas" de tasks.md.
+   - No releas los documentos entre tareas: ya los tienes en contexto.
 
-   Lee primero, luego ejecuta solo esa tarea.
+   Al terminar cada tarea, repórtame: qué archivos creó, si cumple su
+   "Criterio de hecho", y el resultado de sus tests. NO marques [x]: eso lo hago yo.
    ```
 
-3. El agente ejecuta SOLO esa tarea.
-4. **Tú revisas el resultado**: el código, los tests, que cumpla el criterio de hecho de la tarea.
-5. Itera dentro de esa conversación hasta que esté bien.
-6. Marca `[x]` en `tasks.md`.
-7. Cierra la conversación.
-8. Conversación nueva para la siguiente tarea.
+3. **Tú revisas** el resultado de cada tarea del lote: corres los tests, lees el código, verificas el criterio de hecho.
+4. Marcas `[x]` solo las que pasen. Cierras la conversación. Abres otra para el siguiente lote.
 
-### El anti-patrón fatal
+Las tres líneas del prompt que garantizan corrección — no las quites por acortar:
 
-❌ "Lee tasks.md y ejecuta todo".
+| Línea | Qué previene |
+|---|---|
+| "Lee COMPLETOS … una sola vez" | Que trabaje con fragmentos o de memoria. |
+| "Si algo no está especificado… DETENTE y pregúntame; no lo infieras" | Que rellene huecos con suposiciones plausibles pero incorrectas. |
+| "NO marques [x]: eso lo hago yo" | Que se auto-apruebe código sin tu revisión. |
 
-Rompe siempre, sin excepción. Razones:
+#### Por qué el lote no gasta más por leer completo
 
-- Pérdida de contexto a la mitad → decisiones inconsistentes entre tareas.
-- Errores se propagan sin revisión humana.
-- Imposibilidad de hacer rollback granular si algo sale mal.
-- El agente marca tareas como completas con código que no funciona.
+La intuición de "leer los documentos completos gasta mucho" es cierta **solo si lo haces en cada tarea**. En un lote, la economía funciona así:
 
-**Una tarea = una sesión = una revisión humana = un `[x]`.** Sin atajos.
+1. **El costo de lectura se paga una vez y se divide entre las tareas del lote.** Spec completa para 6 tareas = ~9k tokens por tarea, contra ~56k por tarea si abres conversación por cada una. Leer completo en lote es **más barato** que leer "puntual" en sesiones separadas, y con calidad muy superior.
+
+2. **El prompt caching mantiene el contexto barato durante todo el lote.** Claude cachea lo ya leído y reutilizarlo cuesta ~10% del precio normal. El temporizador de esa caché (~5 min) **se reinicia con cada interacción**, así que mientras trabajas de corrido se mantiene activa durante horas. Si la conversación queda inactiva y la caché expira, el costo es una recarga puntual — no se pierde el contexto ni la calidad, solo se repaga una vez.
+
+> En una frase: **contexto completo, pagado una vez por lote.** Nunca "contexto recortado para ahorrar" — eso es lo que genera código inferido e incorrecto.
+
+#### Qué tareas juntar en un lote
+
+Tu `tasks.md` ya viene ordenado por capas. Cada capa es un lote natural:
+
+| Lote | Capa | Por qué agrupa bien |
+|---|---|---|
+| **Setup** | Andamiaje (monorepo, tsconfig, lint, test runners) | Cero lógica de negocio, cero riesgo |
+| **Data Model** | Tipos / esquemas / constantes | Se construyen unos sobre otros, sin efectos externos |
+| **Data Access** | Repositorios / capa de sesión + sus tests | Tests se auto-validan dentro del lote |
+| **Business Logic** | Servicios, clientes, validadores | El más grande — **pártelo por tamaño** (clientes / validadores / servicios), no por riesgo |
+| **API / Routes** | Endpoints + tests de integración | Comparten el mismo contrato de §4 |
+| **UI** | Componentes / vistas | Comparten el shell y la capa de transporte |
+| **E2E** | Specs de Playwright | Comparten el harness |
+
+Regla simple: **un lote = una capa.** No mezcles capas. Si una capa es enorme (como Business Logic), pártela en pedazos por tamaño (clientes / validadores / servicios), no la hagas toda de un jalón.
+
+#### Qué tareas NUNCA van en lote (van solas)
+
+- **Tareas de validación de integración** (las que dicen "Validar integración tareas X–Y", "Verificar regresión"). Son puntos de control donde TÚ decides si el bloque anterior quedó bien antes de seguir.
+- **Tareas con decisión humana pendiente** (una errata abierta, un ADR que aún no apruebas, un campo cuya forma se fijó "por decisión humana").
+- **Mantenimiento**: las tareas de `Regression Shield` (blindaje) y la `No-Regression Validation` final. El blindaje va antes del código nuevo por diseño; la validación final es el gate más importante del feature. Ninguna se lotea con tareas de modificación.
+
+#### Si solo necesitas UNA tarea suelta
+
+A veces solo quieres una tarea (retomar algo, un arreglo puntual). Ahí sí abres una conversación para esa sola tarea. Puedes acotar la lectura a lo que la tarea cita, **pero con la salvaguarda de corrección incluida** — la lectura acotada jamás autoriza a inferir:
+
+   ```
+   Ejecuta la tarea 3 de docs/tasks.md.
+
+   Lectura acotada (no leas los tres documentos completos):
+   - Lee la tarea 3 completa en docs/tasks.md.
+   - De docs/requirements.md: lee los Requirements COMPLETOS a los que pertenecen
+     los criterios del footer "_Requirements:_" (el requirement entero con su
+     User Story, no solo la línea del criterio).
+   - De docs/design.md: lee completas las secciones que la tarea cite con §.
+   - Lee las erratas que la tarea mencione (sección "Erratas" de tasks.md).
+
+   Regla de corrección: si con eso algo queda ambiguo o sin especificar,
+   NO lo infieras — amplía la lectura al documento completo o pregúntame.
+
+   Ejecuta solo la tarea 3 y dime si cumple su criterio de hecho. NO marques [x].
+   ```
+
+Nota la diferencia clave: se lee el **Requirement completo** (no el criterio suelto sacado con grep) y las **secciones § completas**. Un criterio aislado de su User Story es la receta para implementar de menos. Y si la lectura acotada no alcanza, la instrucción es ampliar la lectura — nunca rellenar el hueco.
+
+Es razonable para UNA tarea. Pero si vas a hacer varias, **el lote siempre gana** en costo y en corrección.
+
+#### Cómo está construida una tarea (referencia, NO lo escribes en el prompt)
+
+> Esta tabla es solo para que **entiendas** qué significan los símbolos que verás dentro de una tarea. **No tienes que escribir nada de esto en tu prompt** — el agente lo interpreta solo. Léela una vez y olvídala.
+
+Cada tarea del `tasks.md` está construida siempre con las mismas piezas. Esta es una tarea real del proyecto, anotada pieza por pieza:
+
+```
+- [ ] 3. Definir tipos de dominio y enums en backend/src/types        ← el NÚMERO va en tu prompt
+  - Crear ActorInput... según §3 del design.                         ← § = sección del design a leer
+  - ...consumidos por los contratos internos de §4...                ← otra sección del design
+  - ...derivada de DashboardArtifact + ActorInput — ver errata 4.    ← errata: léela al final del archivo
+  - Crear los tipos auxiliares... (tareas 3, 4)                       ← depende de esas tareas (ya hechas)
+  - Criterio de hecho: tipos compilan; el enum SectionId tiene...    ← cómo sabes que terminó bien
+  - _Requirements: 1.1, 1.2, 1.3, 1.4, 3.1, 3.2_                     ← criterios EARS: el agente los busca SOLO
+```
+
+Las 6 piezas y qué hace cada una:
+
+| Pieza | Aspecto | Para qué sirve |
+|---|---|---|
+| **Número** (`3`) | `- [ ] 3.` | Lo ÚNICO que tú escribes en el prompt. |
+| **Sub-pasos** | viñetas con archivos a crear | Lo que el agente ejecuta. Tú no haces nada. |
+| **`§N`** | "según §3", "§4", "§6.1" | Apunta a una sección del `design.md`. El agente lee solo esa. |
+| **"errata N"** | "ver errata 4", "NOTA DE ERRATA" | Hay decisiones ya tomadas en la sección **`## Erratas detectadas en artefactos upstream`** (al final del `tasks.md`). El agente debe respetarlas. |
+| **"(tareas X, Y)"** | "(tareas 3, 4)" | **Dependencias**: esas tareas deben estar hechas antes. Por eso se ejecutan **en orden**. |
+| **`_Requirements:_`** | el footer | Los criterios EARS que el agente busca solo en `requirements.md`. **Tú no los copias.** |
+
+Dos detalles del footer que verás y son normales:
+
+- **`_Requirements: NFR 5.1, NFR 5.2_`** → el prefijo `NFR` significa "requerimiento **no funcional**" (rendimiento, seguridad, etc.). El agente los busca igual, en la sección de NFR del `requirements.md`.
+- **`_Requirements: -_`** → esa tarea no traza a ningún requerimiento (típico en Setup y Documentación). Es normal: el agente se guía por los sub-pasos y el criterio de hecho.
+
+**El "Criterio de hecho" es TU herramienta de aprobación.** Cuando el agente termina, no le creas porque sí: relees esa línea y verificas que se cumple (corre los tests, revisa que compile, lo que diga). Solo entonces marcas `[x]`.
+
+### El error que NUNCA debes cometer
+
+❌ "Lee tasks.md y ejecuta TODO".
+
+Rompe siempre, sin excepción:
+
+- El agente pierde el hilo a la mitad → toma decisiones que se contradicen entre tareas.
+- Los errores se van encadenando sin que nadie los revise.
+- Si algo sale mal, no puedes deshacer solo una parte: se ensucia todo.
+- Marca tareas como "hechas" con código que ni siquiera funciona.
+
+**¿Cuál es la diferencia con un lote?** Un lote son pocas tareas de la misma capa **que TÚ revisas al cerrar la conversación**. "Ejecuta todo" son las 48 de corrido **sin que nadie revise nada**. Lo primero ahorra tokens y es seguro; lo segundo te explota en la cara.
+
+> **Regla de oro: lote por capa, revisión por lote.** Junta tareas de la misma capa en una conversación; revisa el resultado antes de marcar `[x]`. Si dudas si dos tareas van juntas, pregúntate: *"¿necesito ver el resultado de la primera antes de que empiece la segunda?"* Si la respuesta es sí, van en conversaciones separadas.
 
 ### Cuándo terminaste el feature
 
@@ -984,7 +1100,7 @@ Pega esto en una nota o en un comentario al inicio de tu sesión:
 1. **Una fase a la vez. Un gate humano entre cada una.** No avances con dudas.
 2. **No le dejes al agente rellenar huecos.** Si pregunta, responde. Mejor 10 preguntas hoy que 100 bugs mañana.
 3. **Tú revisas, no el agente.** La auto-validación del agente es el piso, no el techo. Tu revisión humana es la que decide.
-4. **Una tarea = una sesión.** Nunca "ejecuta todo".
+4. **Trabaja por lotes, nunca "ejecuta todo".** El error fatal es soltar `"lee tasks.md y ejecuta todo"` sin revisión. Lo correcto es **juntar tareas de la misma capa en una conversación** y cargar el contexto una sola vez para ahorrar tokens (ver [Fase 4 → El patrón recomendado: trabajar por lotes](#el-patrón-recomendado-trabajar-por-lotes)). Revisas tú al cerrar cada lote, y las tareas de validación van siempre solas.
 5. **Si una regla del SKILL no te encaja, el caso probablemente no es para SDD.** No inventes excepciones — las reglas son absolutas a propósito.
 6. **Versiona todo.** `requirements.md`, `design.md`, `tasks.md` viven en git. Cambios después de aprobar = commit nuevo, no edición silenciosa.
 
