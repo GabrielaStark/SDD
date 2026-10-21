@@ -8,13 +8,15 @@ Reglas absolutas:
 - Errores tipados como enum, nunca strings libres
 - ADRs SIEMPRE con consecuencias negativas
 - Tabla de Traceability es obligatoria, no opcional
-- Total entre 300-800 líneas; si excede 800, partir el feature
+- Longitud proporcional al alcance; 800 líneas como límite para proponer división
 
 Antes de cerrar este archivo, ejecutar el checklist de auto-validación
-definido en .claude/skills/sdd-design/SKILL.md
+definido en la referencia de calidad incluida en el paquete de skill
 -->
 
 # Design: [Nombre del feature o sistema]
+
+> Estado: BORRADOR | Fuentes/versiones: [referencias]
 
 ## 1. Overview
 
@@ -69,7 +71,7 @@ Codificar reglas de negocio en el schema cuando sea posible (CHECK, UNIQUE parti
   id              uuid PK,
   campo_1         tipo NOT NULL,
   campo_2         tipo,
-  foreign_id      uuid FK [otra_tabla](id) ON DELETE [CASCADE|RESTRICT|SET NULL],
+  foreign_id      uuid FK otra_tabla(id) ON DELETE [CASCADE|RESTRICT|SET NULL],
   created_at      timestamptz NOT NULL DEFAULT now(),
 
   INDEX (campo_1) WHERE [condición]    -- justificación del índice

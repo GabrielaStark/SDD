@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reconocer un proyecto heredado"
+  short_description: "Mapa técnico de un proyecto heredado"
+  default_prompt: "Usa $onboarding para reconocer un proyecto heredado con los archivos de este proyecto."

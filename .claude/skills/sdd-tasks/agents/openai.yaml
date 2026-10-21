@@ -1,0 +1,4 @@
+interface:
+  display_name: "Descomponer un diseño en tareas verificables"
+  short_description: "Tareas pequeñas con dependencias y trazabilidad"
+  default_prompt: "Usa $sdd-tasks para descomponer un diseño en tareas verificables con los archivos de este proyecto."

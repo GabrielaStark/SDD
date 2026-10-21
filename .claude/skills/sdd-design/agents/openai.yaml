@@ -1,0 +1,4 @@
+interface:
+  display_name: "Diseñar desde requisitos aprobados"
+  short_description: "Diseño técnico y trazabilidad desde requisitos"
+  default_prompt: "Usa $sdd-design para diseñar desde requisitos aprobados con los archivos de este proyecto."

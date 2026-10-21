@@ -2,7 +2,7 @@
 
 > Template para el input del pipeline de mantenimiento.
 > Cópiate este archivo a `docs/features/<slug-del-feature>/intent.md` y llénalo.
-> El agente `analista-feature-mantenimiento` lo lee como punto de partida.
+> Esta plantilla es opcional; también se acepta una intención descrita en conversación.
 
 ## Qué queremos
 

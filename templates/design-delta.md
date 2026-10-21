@@ -1,8 +1,9 @@
 # Design Delta: [Nombre del feature]
 
+> Estado: BORRADOR | Fuentes/versiones: [referencias]
+
 > Diseño de mantenimiento sobre `<nombre-sistema>`.
 > Describe **el delta**. La arquitectura existente se considera inmutable y se referencia, no se rediseña.
-> Generado por `disenador-delta-mantenimiento` siguiendo el skill `sdd-design-delta`.
 
 ## 1. Overview del Delta
 

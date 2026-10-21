@@ -1,3 +1,5 @@
+> **Documento histórico del framework con subagentes.** Para las skills independientes, usar [el catálogo actual](../../README.md) y [la guía de publicación](PUBLICACION.md). Los procedimientos vigentes están dentro de cada paquete; las rutas, comandos y políticas de este documento describen la versión anterior.
+
 # Fase de Prototipo — Decisiones de Diseño
 
 > ADR que congela las decisiones de la fase opcional de prototipado visual entre `requirements.md` y `design.md`. Esta es la fuente de verdad sobre el **porqué** del agente `prototipador-visual` y el skill `sdd-prototype`. Si los artefactos divergen de este doc, este doc manda hasta que se actualice.

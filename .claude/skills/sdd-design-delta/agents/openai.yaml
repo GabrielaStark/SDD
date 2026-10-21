@@ -1,0 +1,4 @@
+interface:
+  display_name: "Diseñar solo el delta de mantenimiento"
+  short_description: "Diseño acotado con protección de invariantes"
+  default_prompt: "Usa $sdd-design-delta para diseñar solo el delta de mantenimiento con los archivos de este proyecto."

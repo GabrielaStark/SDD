@@ -1,3 +1,5 @@
+> **Documento histórico del framework con subagentes.** Para las skills independientes, usar [el catálogo actual](../../README.md) y [la guía de publicación](PUBLICACION.md). Los procedimientos vigentes están dentro de cada paquete; las rutas, comandos y políticas de este documento describen la versión anterior.
+
 # Pipeline de Mantenimiento — Decisiones de Diseño
 
 > ADR que congela las decisiones del pipeline de mantenimiento del framework SDD (agregar features a sistemas en producción sin romper lo que ya funciona). Esta es la fuente de verdad sobre el **porqué** de los agentes `analista-feature-mantenimiento`, `disenador-delta-mantenimiento`, `descompositor-riesgo-mantenimiento` y sus skills correspondientes. Si los artefactos divergen de este doc, este doc manda hasta que se actualice.

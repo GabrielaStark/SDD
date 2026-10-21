@@ -1,0 +1,4 @@
+interface:
+  display_name: "Extraer reglas de negocio del código"
+  short_description: "Reglas de negocio con evidencia del código"
+  default_prompt: "Usa $reglas-negocio para extraer reglas de negocio del código con los archivos de este proyecto."
