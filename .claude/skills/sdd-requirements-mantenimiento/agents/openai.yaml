@@ -1,0 +1,4 @@
+interface:
+  display_name: "Especificar un cambio sobre producción"
+  short_description: "Requisitos del cambio e invariantes existentes"
+  default_prompt: "Usa $sdd-requirements-mantenimiento para especificar un cambio sobre producción con los archivos de este proyecto."

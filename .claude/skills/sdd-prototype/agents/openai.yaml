@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prototipar para validar requisitos"
+  short_description: "Mockup trazable con revisión de alcance"
+  default_prompt: "Usa $sdd-prototype para prototipar para validar requisitos con los archivos de este proyecto."

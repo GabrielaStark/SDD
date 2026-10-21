@@ -1,3 +1,5 @@
+> **Documento histórico del framework con subagentes.** Para las skills independientes, usar [el catálogo actual](../../README.md) y [la guía de publicación](PUBLICACION.md). Los procedimientos vigentes están dentro de cada paquete; las rutas, comandos y políticas de este documento describen la versión anterior.
+
 # SDD Framework — Guía Completa
 
 > Cómo usar este framework, qué es SDD, qué hace cada pieza, y cómo no pegarte un tiro en el pie en el intento.

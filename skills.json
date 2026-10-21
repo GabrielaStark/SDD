@@ -1,0 +1,61 @@
+{
+  "version": "1.0.0",
+  "author": "Gabriela Carmona / iamgabstark_",
+  "source": "https://github.com/GabrielaStark/SDD",
+  "skills": [
+    {
+      "name": "onboarding",
+      "path": ".claude/skills/onboarding",
+      "collection": "legacy-discovery",
+      "title": "Reconocer un proyecto heredado"
+    },
+    {
+      "name": "reglas-negocio",
+      "path": ".claude/skills/reglas-negocio",
+      "collection": "legacy-discovery",
+      "title": "Extraer reglas de negocio del código"
+    },
+    {
+      "name": "sdd-requirements",
+      "path": ".claude/skills/sdd-requirements",
+      "collection": "sdd-core",
+      "title": "Especificar requisitos verificables"
+    },
+    {
+      "name": "sdd-requirements-mantenimiento",
+      "path": ".claude/skills/sdd-requirements-mantenimiento",
+      "collection": "sdd-maintenance",
+      "title": "Especificar un cambio sobre producción"
+    },
+    {
+      "name": "sdd-design",
+      "path": ".claude/skills/sdd-design",
+      "collection": "sdd-core",
+      "title": "Diseñar desde requisitos aprobados"
+    },
+    {
+      "name": "sdd-design-delta",
+      "path": ".claude/skills/sdd-design-delta",
+      "collection": "sdd-maintenance",
+      "title": "Diseñar solo el delta de mantenimiento"
+    },
+    {
+      "name": "sdd-tasks",
+      "path": ".claude/skills/sdd-tasks",
+      "collection": "sdd-core",
+      "title": "Descomponer un diseño en tareas verificables"
+    },
+    {
+      "name": "sdd-tasks-risk",
+      "path": ".claude/skills/sdd-tasks-risk",
+      "collection": "sdd-maintenance",
+      "title": "Planificar mantenimiento por riesgo"
+    },
+    {
+      "name": "sdd-prototype",
+      "path": ".claude/skills/sdd-prototype",
+      "collection": "sdd-prototype",
+      "title": "Prototipar para validar requisitos"
+    }
+  ]
+}

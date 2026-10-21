@@ -1,0 +1,4 @@
+interface:
+  display_name: "Planificar mantenimiento por riesgo"
+  short_description: "Plan de cambios con blindaje y no regresión"
+  default_prompt: "Usa $sdd-tasks-risk para planificar mantenimiento por riesgo con los archivos de este proyecto."

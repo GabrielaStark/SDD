@@ -1,0 +1,4 @@
+interface:
+  display_name: "Especificar requisitos verificables"
+  short_description: "Requisitos EARS desde entrevistas o legacy"
+  default_prompt: "Usa $sdd-requirements para especificar requisitos verificables con los archivos de este proyecto."

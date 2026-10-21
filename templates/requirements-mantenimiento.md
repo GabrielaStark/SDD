@@ -1,8 +1,9 @@
 # Requirements: [Nombre del feature]
 
+> Estado: BORRADOR | Fuentes/versiones: [referencias]
+
 > Feature de mantenimiento sobre el sistema `<nombre-sistema>`.
 > Este documento describe **el delta** (lo que se añade), no el sistema completo.
-> Generado por `analista-feature-mantenimiento` siguiendo el skill `sdd-requirements-mantenimiento`.
 
 ## Contexto
 

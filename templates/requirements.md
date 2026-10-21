@@ -10,10 +10,12 @@ Reglas absolutas:
 - Cero implementación (stack, librerías, frameworks van en design.md)
 
 Antes de cerrar este archivo, ejecutar el checklist de auto-validación
-definido en .claude/skills/sdd-requirements/SKILL.md
+definido en la referencia de calidad incluida en el paquete de skill
 -->
 
 # Requirements: [Nombre del feature o sistema]
+
+> Estado: BORRADOR | Fuentes/versiones: [referencias]
 
 ## Introduction
 
